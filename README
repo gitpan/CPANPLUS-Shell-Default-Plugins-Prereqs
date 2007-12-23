@@ -1,0 +1,27 @@
+NAME
+    CPANPLUS::Shell::Default::Plugin::Prereqs - Plugin for CPANPLUS to
+    automate the installation of prerequisites without installing the module
+
+SYNOPSIS
+      use CPANPLUS::Shell::Default::Plugin::Prereqs;
+  
+      cpanp /prereqs [dir]
+
+DESCRIPTION
+    A plugin for CPANPLUS's default shell which will install any missing
+    prerequisites for an unpacked module. Assumes the current directory if
+    no directory is specified.
+
+SEE ALSO
+    "CPANPLUS", "CPANPLUS::Shell::Default::Plugins::HOWTO"
+
+AUTHOR
+    Mark Grimes, <mgrimes@cpan.org>
+
+COPYRIGHT AND LICENSE
+    Copyright (C) 2007 by mgrimes
+
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself, either Perl version 5.8.8 or, at
+    your option, any later version of Perl 5 you may have available.
+
