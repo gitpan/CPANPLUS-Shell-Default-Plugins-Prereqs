@@ -5,18 +5,22 @@ NAME
 SYNOPSIS
       use CPANPLUS::Shell::Default::Plugin::Prereqs;
   
-      cpanp /prereqs [dir]
+      cpanp /prereqs <show|list|install> [dir]
 
 DESCRIPTION
-    A plugin for CPANPLUS's default shell which will install any missing
-    prerequisites for an unpacked module. Assumes the current directory if
-    no directory is specified.
+    A plugin for CPANPLUS's default shell which will display and/or install
+    any missing prerequisites for an unpacked module. Assumes the current
+    directory if no directory is specified.
 
 SEE ALSO
     "CPANPLUS", "CPANPLUS::Shell::Default::Plugins::HOWTO"
 
 AUTHOR
     Mark Grimes, <mgrimes@cpan.org>
+
+THANKS
+    Thanks to Jos Boumans for his excellent suggestions to improve both the
+    plugin functionality and the quality of the code.
 
 COPYRIGHT AND LICENSE
     Copyright (C) 2007 by mgrimes

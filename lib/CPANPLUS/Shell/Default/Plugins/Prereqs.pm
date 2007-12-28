@@ -15,94 +15,98 @@ package CPANPLUS::Shell::Default::Plugins::Prereqs;
 
 use strict;
 use warnings;
-use Params::Check qw(check);
+use File::Basename qw[basename];
+use CPANPLUS::Internals::Constants;
 
 use Carp;
 use Data::Dumper;
 
-our $VERSION = '0.03_01';
+our $VERSION = '0.04_01';
 
 sub plugins { (
             prereqs => 'install_prereqs',
         ) };
 
 sub install_prereqs {
-    my $class   = shift;    # CPANPLUS::Shell::Default::Plugins::Prereqs
-    my $shell   = shift;    # CPANPLUS::Shell::Default object
-    my $cb      = shift;    # CPANPLUS::Backend object
-    my $cmd     = shift;    # 'prereqs'
-    my $input   = shift;    # 
-    my $opts    = shift;    # { foo => 0, bar => 2 }
+    my $class   = shift;        # CPANPLUS::Shell::Default::Plugins::Prereqs
+    my $shell   = shift;        # CPANPLUS::Shell::Default object
+    my $cb      = shift;        # CPANPLUS::Backend object
+    my $cmd     = shift;        # 'prereqs'
+    my $input   = shift;        # show|list|install [dirname]
+    my $opts    = shift || {};  # { foo => 0, bar => 2 }
 
-    # print "[install_prereqs] $input\n";
-    my %hash = ref $opts ? %$opts : {};
-    my $conf = $cb->configure_object;
+    ### get the operation and possble target dir.
+    my( $op, $dir ) = split /\s+/, $input, 2;
+
+    ### you want us to install, or just list?
+    my $install     = {
+        list    => 0,
+        show    => 0,
+        install => 1,
+    }->{ lc $op };
     
-    my $args;
-    my( $force, $verbose, $buildflags, $skiptest, $prereq_target,
-            $perl, $prereq_format, $prereq_build);
-    {   local $Params::Check::ALLOW_UNKNOWN = 1;
-        my $tmpl = {
-            force           => {    default => $conf->get_conf('force'),
-                                    store   => \$force },
-            verbose         => {    default => $conf->get_conf('verbose'),
-                                    store   => \$verbose },
-            perl            => {    default => $^X, store => \$perl },
-            buildflags      => {    default => $conf->get_conf('buildflags'),
-                                    store   => \$buildflags },
-            skiptest        => {    default => $conf->get_conf('skiptest'),
-                                    store   => \$skiptest },
-            prereq_target   => {    default => '', store => \$prereq_target },
-            prereq_format   => {    default => '', store   => \$prereq_format },
-            prereq_build    => {    default => 0, store => \$prereq_build },    
+    ### you passed an unknown operation
+    unless( defined $install ) {
+        print __PACKAGE__->install_prereqs_help;
+        return;
+    }        
 
-        };
-
-        $args = check( $tmpl, \%hash ) or return;
-    }
-
-    if( -d $input ){
-        chdir( $input ) or die "Couldn't cd to $input\n";
-    }
-
+    ### get the absolute path to the directory
+    $dir    = File::Spec->rel2abs( defined $dir ? $dir : '.' );
+    
     my $mod = CPANPLUS::Module::Fake->new(
-                module  => 'Foo',
-                path    => '',
+                module  => basename( $dir ),
+                path    => $dir,
                 author  => CPANPLUS::Module::Author::Fake->new,
-                package => 'fake-1.1.tgz',
-                # _id     => $cpan->_id,
-            );
-    $mod->status->fetch( 1 );
-    $mod->status->extract( '.' );
-    my $dist    = $mod->dist( target => 'prepare' );
-    my $prereqs = $mod->status->prereqs;
-
-    my $ok = $dist->_resolve_prereqs(
-            force           => $force,
-            format          => $prereq_format,
-            verbose         => $verbose,
-            prereqs         => $mod->status->prereqs,
-            target          => $prereq_target,
-            prereq_build    => $prereq_build,
+                package => basename( $dir ),
             );
 
-    # print Dumper $dist, $mod;
+    ### set the fetch & extract targets, so we know where to look
+    $mod->status->fetch(   $dir );
+    $mod->status->extract( $dir );
+
+    ### figure out whether this module uses EU::MM or Module::Build
+    ### do this manually, as we're setting the extract location ourselves.
+    $mod->get_installer_type or return;
+
+    ### run 'perl Makefile.PL' or 'M::B->new_from_context' to find the prereqs.
+    $mod->prepare( %$opts ) or return;
+
+    ### prepare will list/show any missing prereqs, so exit if we are done
+    return unless $install;
+
+    ### get the list of prereqs
+    my $href = $mod->status->prereqs or return;
+ 
+    ### list and/or install the prereqs
+    while( my($name, $version) = each %$href ) {
+    
+        ### no such module
+        my $obj = $cb->module_tree( $name ) or 
+            print "Prerequisite '$name' was not found on CPAN\n" and
+            next;
+    
+        ### we already have this version or better installed
+        next if $obj->is_uptodate( version => $version );
+     
+        ### install it
+        $obj->install( %$opts );
+    }
 
     return;
 }
 
 sub install_prereqs_help {
-    return "    /prereqs [DIR]        # Install any missing prerequisites\n".
-           "                          # listed in the Build.PL or Makefile.PL\n".
-           "        DIR               # Assumes . if no DIR specified\n";
+    return "    /prereqs <cmd> [DIR]  # Install missing prereqs from Build.PL\n" .
+           "                          # of Makefile.PL in the DIR directory\n" .
+           "        <cmd>  =>  show|list|install\n".
+           "        [DIR]      Defaults to .\n";
 
 }
 
 1;
 
 __END__
-
-# Below is stub documentation for your module. You'd better edit it!
 
 =head1 NAME
 
@@ -113,13 +117,13 @@ the installation of prerequisites without installing the module
 
   use CPANPLUS::Shell::Default::Plugin::Prereqs;
   
-  cpanp /prereqs [dir]
+  cpanp /prereqs <show|list|install> [dir]
 
 =head1 DESCRIPTION
 
-A plugin for CPANPLUS's default shell which will install any missing
-prerequisites for an unpacked module. Assumes the current directory
-if no directory is specified.
+A plugin for CPANPLUS's default shell which will display and/or install any
+missing prerequisites for an unpacked module. Assumes the current directory if
+no directory is specified.
 
 =head1 SEE ALSO
 
@@ -128,6 +132,11 @@ C<CPANPLUS>, C<CPANPLUS::Shell::Default::Plugins::HOWTO>
 =head1 AUTHOR
 
 Mark Grimes, E<lt>mgrimes@cpan.orgE<gt>
+
+=head1 THANKS
+
+Thanks to Jos Boumans for his excellent suggestions to improve both the plugin
+functionality and the quality of the code.
 
 =head1 COPYRIGHT AND LICENSE
 
