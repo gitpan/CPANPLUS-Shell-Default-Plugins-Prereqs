@@ -9,13 +9,15 @@ my $build = Module::Build->new(
             # 'Params::Check'     => 0,
             # 'Data::Dumper'      => 0,
         },
-    build_requires  => {        
+    build_requires          => {        
             'Test::More'        => 0,
-            'Test::Output'      => 0,
             'File::Spec'        => 0,
             # 'local::lib'        => 0,
             # 'FindBin'           => 0,
         },       
+    recommends              => {
+            'Test::Output'      => '0.10',
+        },
 );
 
 $build->create_build_script;

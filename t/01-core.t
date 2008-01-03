@@ -3,9 +3,12 @@
 use strict;
 use warnings;
 
-use Test::More tests => 7;
-use Test::Output;
+use Test::More;
 use CPANPLUS::Shell qw[Default];
+
+eval "use Test::Output";
+plan( skip_all => ' Test::Output required to run these tests' ) if $@;
+plan tests => 7;
 
 ### TODO: test the /prereqs install
 # ### Use a localized site_perl, so we can test installs
@@ -17,16 +20,17 @@ my $shell = CPANPLUS::Shell->new;
 sub test_cmd {
     my ($cmd, $stdout, $stderr, $desc) = @_;
 
-    output_like 
-            { 
+    Test::Output::output_like(
+            sub { 
                 $shell->dispatch_on_input(
                     input => $cmd,
                     noninteractive => 1
                 )
-            }
+            },
             $stdout,
             $stderr,
-            $desc;
+            $desc
+        );
 }
 
 ### Is the plugin listed

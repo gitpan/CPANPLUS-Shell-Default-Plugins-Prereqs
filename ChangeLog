@@ -1,3 +1,13 @@
+2008-01-03 17:49  mgrimes
+
+	* Build.PL, t/01-core.t: Installing shouldn't require Test::Output
+	  (too many dependencies).
+
+2008-01-03 01:51  mgrimes
+
+	* MANIFEST, samples/coming_soon, samples/display-prereqs: Cleanup
+	  MANIFEST before release
+
 2008-01-03 01:39  mgrimes
 
 	* ., t/inc1: Updated the svn:ignore property
