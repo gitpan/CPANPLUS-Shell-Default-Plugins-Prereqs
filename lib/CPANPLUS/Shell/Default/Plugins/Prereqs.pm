@@ -2,14 +2,15 @@ package CPANPLUS::Shell::Default::Plugins::Prereqs;
 
 ###########################################################################
 # CPANPLUS::Shell::Default::Plugin::Prereqs
-# Mark V. Grimes
+# Mark Grimes
 #
-# This is a CPANPLUS::Shell::Default plugin that will parse the Build.PL or Makefile.PL file in the current directory or in a distribution and install all the prerequisites.
+# This is a CPANPLUS::Shell::Default plugin that will parse the Build.PL or
+# Makefile.PL file in the current directory or in a distribution and install
+# all the prerequisites.
+#
 # Copyright (c) 2007 Mark Grimes (mgrimes@cpan.org).
 # All rights reserved. This program is free software; you can redistribute
 # it and/or modify it under the same terms as Perl itself.
-#
-# Formatted with tabstops at 4
 #
 ###########################################################################
 
@@ -21,11 +22,11 @@ use CPANPLUS::Internals::Constants;
 use Carp;
 use Data::Dumper;
 
-our $VERSION = '0.04_01';
+our $VERSION = '0.05';
 
-sub plugins { (
+sub plugins { return (
             prereqs => 'install_prereqs',
-        ) };
+        ); }
 
 sub install_prereqs {
     my $class   = shift;        # CPANPLUS::Shell::Default::Plugins::Prereqs
@@ -36,7 +37,7 @@ sub install_prereqs {
     my $opts    = shift || {};  # { foo => 0, bar => 2 }
 
     ### get the operation and possble target dir.
-    my( $op, $dir ) = split /\s+/, $input, 2;
+    my( $op, $dir ) = split /\s+/, $input, 2;           ## no critic
 
     ### you want us to install, or just list?
     my $install     = {
@@ -51,40 +52,63 @@ sub install_prereqs {
         return;
     }        
 
-    ### get the absolute path to the directory
-    $dir    = File::Spec->rel2abs( defined $dir ? $dir : '.' );
-    
-    my $mod = CPANPLUS::Module::Fake->new(
-                module  => basename( $dir ),
-                path    => $dir,
-                author  => CPANPLUS::Module::Author::Fake->new,
-                package => basename( $dir ),
-            );
+    my $mod;
 
-    ### set the fetch & extract targets, so we know where to look
-    $mod->status->fetch(   $dir );
-    $mod->status->extract( $dir );
+    ### was a directory specified
+    if( -d $dir ){
 
-    ### figure out whether this module uses EU::MM or Module::Build
-    ### do this manually, as we're setting the extract location ourselves.
-    $mod->get_installer_type or return;
+        ### get the absolute path to the directory
+        $dir    = File::Spec->rel2abs( defined $dir ? $dir : '.' );
+        
+        $mod = CPANPLUS::Module::Fake->new(
+                    module  => basename( $dir ),
+                    path    => $dir,
+                    author  => CPANPLUS::Module::Author::Fake->new,
+                    package => basename( $dir ),
+                );
+
+        ### set the fetch & extract targets, so we know where to look
+        $mod->status->fetch(   $dir );
+        $mod->status->extract( $dir );
+
+        ### figure out whether this module uses EU::MM or Module::Build
+        ### do this manually, as we're setting the extract location ourselves.
+        $mod->get_installer_type or return;
+
+    } else {
+
+        ### get the module per normal
+        $mod = $cb->parse_module( module => $dir )
+            or return;
+
+    }
 
     ### run 'perl Makefile.PL' or 'M::B->new_from_context' to find the prereqs.
     $mod->prepare( %$opts ) or return;
 
-    ### prepare will list/show any missing prereqs, so exit if we are done
-    return unless $install;
-
     ### get the list of prereqs
     my $href = $mod->status->prereqs or return;
+
+    ### print repreq header
+    printf "\n  %-30s %10s %10s %10s %10s\n", 
+        'Module', 'Req Ver', 'Installed', 'CPAN', 'Satisfied'
+        if keys %$href;
  
     ### list and/or install the prereqs
     while( my($name, $version) = each %$href ) {
     
-        ### no such module
+        ### find the module or display msg no such module
         my $obj = $cb->module_tree( $name ) or 
             print "Prerequisite '$name' was not found on CPAN\n" and
             next;
+
+        ### display some info
+        printf "  %-30s %10s %10s %10s %10s\n", 
+            $name, $version, $obj->installed_version, $obj->version,
+            ($obj->is_uptodate( version => $version ) ? 'Yes' : 'No');
+
+        ### that is it, unless we need to install
+        next unless $install;
     
         ### we already have this version or better installed
         next if $obj->is_uptodate( version => $version );
@@ -96,11 +120,13 @@ sub install_prereqs {
     return;
 }
 
+# sub _get_module {
+
+
 sub install_prereqs_help {
-    return "    /prereqs <cmd> [DIR]  # Install missing prereqs from Build.PL\n" .
-           "                          # of Makefile.PL in the DIR directory\n" .
+    return "    /prereqs <cmd> [mod]  # Install missing prereqs for given module\n" .
            "        <cmd>  =>  show|list|install\n".
-           "        [DIR]      Defaults to .\n";
+           "        [mod]      directory, module name or URL (defaults to .)\n";
 
 }
 
@@ -117,13 +143,50 @@ the installation of prerequisites without installing the module
 
   use CPANPLUS::Shell::Default::Plugin::Prereqs;
   
-  cpanp /prereqs <show|list|install> [dir]
+  $ cpanp /prereqs <show|list|install> [Module|URL|dir]
 
 =head1 DESCRIPTION
 
 A plugin for CPANPLUS's default shell which will display and/or install any
-missing prerequisites for an unpacked module. Assumes the current directory if
-no directory is specified.
+missing prerequisites for a module. The module can be specified by name, as a
+URL or path to the directory of an unpacked module. The plugin assumes the
+current directory if no module is specified.
+
+=head1 EXAMPLE COMMAND LINES
+
+The following would list any reprequsites found in the Build.PL or Makefile.PL
+for the C<MyModule> module:
+
+  $ cd MyModule
+  $ cpanp /prereqs show .
+
+Or you could just have given the module name, and C<cpanp> will find the the
+module on CPAN:
+
+  $ cpanp /prereqs show YAML
+
+And of course you can install the prereqs:
+
+  $ cd MyModule
+  $ cpanp /prereqs install .
+
+=head1 SUBROUTINES
+
+The module subroutines are primarily expected to be utilized by the
+C<CPANPLUS> plugin infrasctructure.
+
+=head2 plugins
+
+Reports the plugin routines provided by this module.
+
+=head2 install_prereqs
+
+Performs the reqrequsite listing or installation. Conforms to the
+C<CPANPLUS::Shell::Default::Plugins::HOWTO> API.
+
+=head2 install_prereqs_help
+
+Returns the short version documentation for the plugin.
 
 =head1 SEE ALSO
 
@@ -137,6 +200,11 @@ Mark Grimes, E<lt>mgrimes@cpan.orgE<gt>
 
 Thanks to Jos Boumans for his excellent suggestions to improve both the plugin
 functionality and the quality of the code.
+
+=head1 TODO
+
+Add test for MakeMaker and Module::Install based modules. Add test for
+/prereq install. Split C<install_prereqs> into multiple subroutines.
 
 =head1 COPYRIGHT AND LICENSE
 

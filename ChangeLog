@@ -1,3 +1,31 @@
+2008-01-03 01:39  mgrimes
+
+	* ., t/inc1: Updated the svn:ignore property
+
+2008-01-03 01:37  mgrimes
+
+	* Build.PL, MANIFEST,
+	  lib/CPANPLUS/Shell/Default/Plugins/Prereqs.pm, t/00-new.t,
+	  t/00-plugin.t, t/01-core.t, t/localperl,
+	  t/localperl/.modulebuildrc: Added tests and cleaned up
+	  documentation.
+
+2008-01-02 23:40  mgrimes
+
+	* lib/CPANPLUS/Shell/Default/Plugins/Prereqs.pm, t/inc1,
+	  t/inc1/Makefile.PL, t/inc1/lib, t/inc1/lib/CSDPR_Test.pm: Added
+	  ability to work with URLs, etc.
+	  Output more information on the prereqs
+
+2007-12-29 01:06  mgrimes
+
+	* Build.PL: Added Client::Lirc module
+	  Updated the build_requires
+
+2007-12-28 21:09  mgrimes
+
+	* Build.PL: Added CPANPLUS as a prereq
+
 2007-12-28 18:52  mgrimes
 
 	* Test.pm, t/build1/lib/CSDPR_Test.pm: Updated Module::Build test

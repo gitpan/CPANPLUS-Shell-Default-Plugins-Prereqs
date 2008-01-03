@@ -5,10 +5,17 @@ my $build = Module::Build->new(
     create_readme           =>  1,
     create_makefile_pl      => 'passthrough',
     requires                => {
-            'Carp'              => 0,
-            'Params::Check'     => 0,
-            'Data::Dumper'      => 0,
+            'CPANPLUS'          => '0.77',
+            # 'Params::Check'     => 0,
+            # 'Data::Dumper'      => 0,
         },
+    build_requires  => {        
+            'Test::More'        => 0,
+            'Test::Output'      => 0,
+            'File::Spec'        => 0,
+            # 'local::lib'        => 0,
+            # 'FindBin'           => 0,
+        },       
 );
 
 $build->create_build_script;

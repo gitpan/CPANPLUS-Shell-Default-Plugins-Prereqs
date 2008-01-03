@@ -5,7 +5,8 @@ Build.PL
 README
 lib/CPANPLUS/Shell/Default/Plugins/Prereqs.pm
 samples/coming_soon
-t/00-new.t
+t/00-plugin.t
+t/01-core.t
 t/98-pod.t
 t/99-podcoverage.t
 META.yml                                 Module meta-data (added by MakeMaker)
