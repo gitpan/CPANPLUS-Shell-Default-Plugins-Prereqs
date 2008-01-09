@@ -5,18 +5,18 @@ my $build = Module::Build->new(
     create_readme           =>  1,
     create_makefile_pl      => 'passthrough',
     requires                => {
-            'CPANPLUS'          => '0.77',
-            # 'Params::Check'     => 0,
-            # 'Data::Dumper'      => 0,
+            'CPANPLUS'              => '0.77',
         },
     build_requires          => {        
-            'Test::More'        => 0,
-            'File::Spec'        => 0,
-            # 'local::lib'        => 0,
-            # 'FindBin'           => 0,
+            'Test::More'            => 0,
+            'File::Spec'            => 0,
+            'Module::Build'         => 0,
+            'CPANPLUS::Dist::Build' => 0,
+            # 'local::lib'          => 0,
+            # 'FindBin'             => 0,
         },       
     recommends              => {
-            'Test::Output'      => '0.10',
+            'Test::Output'          => '0.10',
         },
 );
 

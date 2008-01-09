@@ -22,7 +22,7 @@ use CPANPLUS::Internals::Constants;
 use Carp;
 use Data::Dumper;
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 sub plugins { return (
             prereqs => 'install_prereqs',
@@ -38,6 +38,9 @@ sub install_prereqs {
 
     ### get the operation and possble target dir.
     my( $op, $dir ) = split /\s+/, $input, 2;           ## no critic
+
+    ### default to the current dir
+    $dir ||= '.';
 
     ### you want us to install, or just list?
     my $install     = {
@@ -58,7 +61,7 @@ sub install_prereqs {
     if( -d $dir ){
 
         ### get the absolute path to the directory
-        $dir    = File::Spec->rel2abs( defined $dir ? $dir : '.' );
+        $dir    = File::Spec->rel2abs( $dir );
         
         $mod = CPANPLUS::Module::Fake->new(
                     module  => basename( $dir ),

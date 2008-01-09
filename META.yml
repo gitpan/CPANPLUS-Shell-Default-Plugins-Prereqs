@@ -1,6 +1,6 @@
 ---
 name: CPANPLUS-Shell-Default-Plugins-Prereqs
-version: 0.06
+version: 0.07
 author:
   - 'Mark Grimes, E<lt>mgrimes@cpan.orgE<gt>'
 abstract: |-
@@ -12,14 +12,16 @@ resources:
 requires:
   CPANPLUS: 0.77
 build_requires:
+  CPANPLUS::Dist::Build: 0
   File::Spec: 0
+  Module::Build: 0
   Test::More: 0
 recommends:
   Test::Output: 0.10
 provides:
   CPANPLUS::Shell::Default::Plugins::Prereqs:
     file: lib/CPANPLUS/Shell/Default/Plugins/Prereqs.pm
-    version: 0.06
+    version: 0.07
 generated_by: Module::Build version 0.2808
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html

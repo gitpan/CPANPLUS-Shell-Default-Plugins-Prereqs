@@ -1,3 +1,40 @@
+2008-01-09 17:42  mgrimes
+
+	* .: Update svn:ignore
+
+2008-01-09 17:42  mgrimes
+
+	* MANIFEST.tmp: Removed temp file
+
+2008-01-09 17:41  mgrimes
+
+	* MANIFEST, MANIFEST.SKIP, MANIFEST.skip, MANIFEST.tmp: Updated the
+	  MANIFEST
+
+2008-01-09 17:31  mgrimes
+
+	* Build.PL, TODO, lib/CPANPLUS/Shell/Default/Plugins/Prereqs.pm,
+	  t/inc1, t/inc1/inc, t/inc1/inc/.author, t/inc1/inc/Module,
+	  t/inc1/inc/Module/Install, t/inc1/inc/Module/Install.pm,
+	  t/inc1/inc/Module/Install/Base.pm,
+	  t/inc1/inc/Module/Install/Can.pm,
+	  t/inc1/inc/Module/Install/Fetch.pm,
+	  t/inc1/inc/Module/Install/Makefile.pm,
+	  t/inc1/inc/Module/Install/Metadata.pm,
+	  t/inc1/inc/Module/Install/Win32.pm,
+	  t/inc1/inc/Module/Install/WriteAll.pm: Added to the build
+	  requirements.
+
+2008-01-08 18:34  mgrimes
+
+	* lib/CPANPLUS/Shell/Default/Plugins/Prereqs.pm: Bug fix: failed to
+	  default to cwd
+
+2008-01-03 17:50  mgrimes
+
+	* lib/CPANPLUS/Shell/Default/Plugins/Prereqs.pm: Updated the
+	  version
+
 2008-01-03 17:49  mgrimes
 
 	* Build.PL, t/01-core.t: Installing shouldn't require Test::Output
