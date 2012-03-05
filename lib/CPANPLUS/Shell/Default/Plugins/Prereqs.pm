@@ -22,7 +22,7 @@ use CPANPLUS::Internals::Constants;
 use Carp;
 use Data::Dumper;
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 sub plugins { return (
             prereqs => 'install_prereqs',
@@ -139,8 +139,7 @@ __END__
 
 =head1 NAME
 
-CPANPLUS::Shell::Default::Plugin::Prereqs - Plugin for CPANPLUS to automate
-the installation of prerequisites without installing the module
+CPANPLUS::Shell::Default::Plugin::Prereqs - Plugin for CPANPLUS to automate the installation of prerequisites without installing the module
 
 =head1 SYNOPSIS
 
