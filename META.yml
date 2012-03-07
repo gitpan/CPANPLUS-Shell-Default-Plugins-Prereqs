@@ -19,10 +19,10 @@ name: CPANPLUS-Shell-Default-Plugins-Prereqs
 provides:
   CPANPLUS::Shell::Default::Plugins::Prereqs:
     file: lib/CPANPLUS/Shell/Default/Plugins/Prereqs.pm
-    version: 0.09
+    version: 0.10
 requires:
   CPANPLUS: 0.77
   File::Spec: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.09
+version: 0.10

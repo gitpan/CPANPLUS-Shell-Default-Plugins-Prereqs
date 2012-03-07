@@ -4,7 +4,7 @@ NAME
 
 SYNOPSIS
       use CPANPLUS::Shell::Default::Plugin::Prereqs;
-  
+
       $ cpanp /prereqs <show|list|install> [Module|URL|dir]
 
 DESCRIPTION
@@ -59,7 +59,7 @@ TODO
     /prereq install. Split "install_prereqs" into multiple subroutines.
 
 COPYRIGHT AND LICENSE
-    Copyright (C) 2007 by mgrimes
+    Copyright (C) 2007-12 by mgrimes
 
     This library is free software; you can redistribute it and/or modify it
     under the same terms as Perl itself, either Perl version 5.8.8 or, at
